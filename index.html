@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fashion Store - พรีออเดอร์เสื้อผ้า</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Kanit', sans-serif; }
+        .product-card:hover { transform: translateY(-5px); }
+        .modal { display: none; }
+        .modal.active { display: flex; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <h1 class="text-2xl font-bold text-gray-800">🛍️ Fashion Store</h1>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm text-gray-600">พรีออเดอร์ 7-14 วัน</span>
+                    <button id="cartBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        🛒 ตะกร้า
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-purple-600 to-pink-600 text-white py-16">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-4xl font-bold mb-4">เสื้อผ้าแฟชั่นล่าสุด</h2>
+            <p class="text-xl mb-8">พรีออเดอร์เสื้อผ้าคุณภาพดี ส่งฟรีทั่วประเทศ</p>
+            <div class="bg-white/20 backdrop-blur-sm rounded-lg p-4 inline-block">
+                <p class="text-lg">⏰ ระยะเวลาการส่ง: 7-14 วัน </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section class="py-16">
+        <div class="container mx-auto px-4">
+            <h3 class="text-3xl font-bold text-center mb-12 text-gray-800">สินค้าของเรา</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="productGrid">
+                <!-- Products will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Cart Modal -->
+    <div id="cartModal" class="modal fixed inset-0 bg-black/50 items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-8 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-800">🛒 ตะกร้าสินค้า</h3>
+                <button id="closeCartModal" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            
+            <div id="cartItems" class="space-y-4 mb-6">
+                <!-- Cart items will be loaded here -->
+            </div>
+            
+            <div id="cartSummary" class="border-t pt-4">
+                <!-- Cart summary will be loaded here -->
+            </div>
+            
+            <div class="flex space-x-4 mt-6">
+                <button id="clearCart" class="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition-colors">
+                    ล้างตะกร้า
+                </button>
+                <button id="checkoutBtn" class="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors">
+                    สั่งซื้อทั้งหมด
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Modal -->
+    <div id="orderModal" class="modal fixed inset-0 bg-black/50 items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-800">สั่งซื้อสินค้า</h3>
+                <button id="closeModal" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            
+            <div id="orderSummary" class="mb-6">
+                <!-- Order summary will be loaded here -->
+            </div>
+            
+            <form id="orderForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">ชื่อ-นามสกุล *</label>
+                    <input type="text" id="fullName" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">ที่อยู่ *</label>
+                    <textarea id="address" required rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">เบอร์โทรศัพท์ *</label>
+                    <input type="tel" id="phone" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <p class="text-sm text-blue-800 mb-2">💳 ชำระเงินผ่าน QR Code</p>
+                    <div class="text-center">
+                        <img src="<img src="https://promptpay.io/0951943403.png">" alt="QR Code" class="mx-auto mb-2 border rounded">
+                        <p class="text-sm text-gray-600">สแกน QR Code เพื่อชำระเงิน</p>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">อัพโหลดสลิปการโอนเงิน *</label>
+                    <input type="file" id="paymentSlip" accept="image/*" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <p class="text-sm text-green-800">
+                        ✅ <strong>หมายเหตุ:</strong> ระบบจะส่งข้อมูลการสั่งซื้อและสลิปไปยัง Discord อัตโนมัติ
+                    </p>
+                </div>
+                
+                <button type="submit" class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-medium">
+                    ยืนยันการสั่งซื้อ
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal fixed inset-0 bg-black/50 items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4 text-center">
+            <div class="text-6xl mb-4">✅</div>
+            <h3 class="text-2xl font-bold text-green-600 mb-4">สั่งซื้อสำเร็จ!</h3>
+            <p class="text-gray-600 mb-6">ขอบคุณสำหรับการสั่งซื้อ<br>เราจะจัดส่งสินค้าภายใน 7-14 วัน</p>
+            <button id="closeSuccess" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                ตกลง
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Sample products data
+        const products = [
+            {
+                id: 1,
+                name: "เสื้อยืดแฟชั่น",
+                price: 350,
+                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'%3E%3Crect width='300' height='300' fill='%23e3f2fd'/%3E%3Cpath d='M100 80 L200 80 L220 100 L220 200 L80 200 L80 100 Z' fill='%232196f3' stroke='%231976d2' stroke-width='2'/%3E%3Ctext x='150' y='150' text-anchor='middle' dy='.3em' font-family='Arial' font-size='16' fill='white'%3E👕%3C/text%3E%3C/svg%3E",
+                description: "เสื้อยืดคอตตอน 100% นุ่มสบาย"
+            },
+            {
+                id: 2,
+                name: "เสื้อเชิ้ตลำลอง",
+                price: 450,
+                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'%3E%3Crect width='300' height='300' fill='%23f3e5f5'/%3E%3Cpath d='M90 70 L210 70 L230 90 L230 210 L70 210 L70 90 Z' fill='%239c27b0' stroke='%237b1fa2' stroke-width='2'/%3E%3Ctext x='150' y='150' text-anchor='middle' dy='.3em' font-family='Arial' font-size='16' fill='white'%3E👔%3C/text%3E%3C/svg%3E",
+                description: "เสื้อเชิ้ตสไตล์เกาหลี ใส่สบาย"
+            },
+            {
+                id: 3,
+                name: "เสื้อฮู้ดแฟชั่น",
+                price: 550,
+                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'%3E%3Crect width='300' height='300' fill='%23e8f5e8'/%3E%3Cpath d='M80 90 L220 90 L240 110 L240 220 L60 220 L60 110 Z' fill='%234caf50' stroke='%23388e3c' stroke-width='2'/%3E%3Cpath d='M80 90 L100 70 L200 70 L220 90' fill='%234caf50' stroke='%23388e3c' stroke-width='2'/%3E%3Ctext x='150' y='160' text-anchor='middle' dy='.3em' font-family='Arial' font-size='16' fill='white'%3E🧥%3C/text%3E%3C/svg%3E",
+                description: "เสื้อฮู้ดกันหนาว อบอุ่น"
+            },
+            {
+                id: 4,
+                name: "เสื้อโปโลคลาสสิค",
+                price: 400,
+                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'%3E%3Crect width='300' height='300' fill='%23fff3e0'/%3E%3Cpath d='M95 85 L205 85 L225 105 L225 205 L75 205 L75 105 Z' fill='%23ff9800' stroke='%23f57c00' stroke-width='2'/%3E%3Ctext x='150' y='155' text-anchor='middle' dy='.3em' font-family='Arial' font-size='16' fill='white'%3E👕%3C/text%3E%3C/svg%3E",
+                description: "เสื้อโปโลคุณภาพดี เหมาะกับทุกโอกาส"
+            },
+            {
+                id: 5,
+                name: "เสื้อแขนยาวแฟชั่น",
+                price: 480,
+                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'%3E%3Crect width='300' height='300' fill='%23fce4ec'/%3E%3Cpath d='M70 100 L230 100 L250 120 L250 200 L50 200 L50 120 Z' fill='%23e91e63' stroke='%23c2185b' stroke-width='2'/%3E%3Cpath d='M70 100 L50 80 L80 60 L100 80' fill='%23e91e63'/%3E%3Cpath d='M230 100 L250 80 L220 60 L200 80' fill='%23e91e63'/%3E%3Ctext x='150' y='155' text-anchor='middle' dy='.3em' font-family='Arial' font-size='16' fill='white'%3E👚%3C/text%3E%3C/svg%3E",
+                description: "เสื้อแขนยาวสไตล์เท่ ใส่ได้ทุกฤดู"
+            },
+            {
+                id: 6,
+                name: "เสื้อกล้ามแฟชั่น",
+                price: 280,
+                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300' viewBox='0 0 300 300'%3E%3Crect width='300' height='300' fill='%23f1f8e9'/%3E%3Cpath d='M110 90 L190 90 L210 110 L210 210 L90 210 L90 110 Z' fill='%238bc34a' stroke='%23689f38' stroke-width='2'/%3E%3Ctext x='150' y='155' text-anchor='middle' dy='.3em' font-family='Arial' font-size='16' fill='white'%3E🎽%3C/text%3E%3C/svg%3E",
+                description: "เสื้อกล้ามระบายอากาศดี เหมาะกับอากาศร้อน"
+            }
+        ];
+
+        let cart = [];
+
+        // Load products
+        function loadProducts() {
+            const productGrid = document.getElementById('productGrid');
+            productGrid.innerHTML = products.map(product => `
+                <div class="product-card bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:shadow-lg">
+                    <img src="${product.image}" alt="${product.name}" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <h4 class="text-xl font-semibold text-gray-800 mb-2">${product.name}</h4>
+                        <p class="text-gray-600 mb-4">${product.description}</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-2xl font-bold text-blue-600">฿${product.price}</span>
+                            <button onclick="addToCart(${product.id})" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                เพิ่มลงตะกร้า
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Add to cart
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            const existingItem = cart.find(item => item.id === productId);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({
+                    ...product,
+                    quantity: 1,
+                    size: 'M' // Default size
+                });
+            }
+            
+            updateCartButton();
+            showNotification(`เพิ่ม ${product.name} ลงตะกร้าแล้ว!`);
+        }
+
+        // Update cart button
+        function updateCartButton() {
+            const cartBtn = document.getElementById('cartBtn');
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            
+            if (totalItems > 0) {
+                cartBtn.innerHTML = `🛒 ตะกร้า (${totalItems})`;
+                cartBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+                cartBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+            } else {
+                cartBtn.innerHTML = '🛒 ตะกร้า';
+                cartBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                cartBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+            }
+        }
+
+        // Show notification
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-20 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 transition-opacity duration-300';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 300);
+            }, 2000);
+        }
+
+        // Open cart modal
+        function openCartModal() {
+            const modal = document.getElementById('cartModal');
+            loadCartItems();
+            modal.classList.add('active');
+        }
+
+        // Load cart items
+        function loadCartItems() {
+            const cartItemsDiv = document.getElementById('cartItems');
+            const cartSummaryDiv = document.getElementById('cartSummary');
+            
+            if (cart.length === 0) {
+                cartItemsDiv.innerHTML = '<p class="text-center text-gray-500 py-8">ตะกร้าว่างเปล่า</p>';
+                cartSummaryDiv.innerHTML = '';
+                return;
+            }
+            
+            cartItemsDiv.innerHTML = cart.map(item => `
+                <div class="flex items-center space-x-4 bg-gray-50 p-4 rounded-lg">
+                    <img src="${item.image}" alt="${item.name}" class="w-16 h-16 object-cover rounded">
+                    <div class="flex-1">
+                        <h4 class="font-semibold">${item.name}</h4>
+                        <p class="text-gray-600">ไซส์: ${item.size}</p>
+                        <p class="text-blue-600 font-bold">฿${item.price}</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="updateQuantity(${item.id}, -1)" class="bg-gray-300 text-gray-700 w-8 h-8 rounded-full hover:bg-gray-400">-</button>
+                        <span class="w-8 text-center">${item.quantity}</span>
+                        <button onclick="updateQuantity(${item.id}, 1)" class="bg-gray-300 text-gray-700 w-8 h-8 rounded-full hover:bg-gray-400">+</button>
+                    </div>
+                    <button onclick="removeFromCart(${item.id})" class="text-red-500 hover:text-red-700 ml-2">🗑️</button>
+                </div>
+            `).join('');
+            
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const shipping = 50;
+            const total = subtotal + shipping;
+            
+            cartSummaryDiv.innerHTML = `
+                <div class="space-y-2">
+                    <div class="flex justify-between">
+                        <span>ราคาสินค้า:</span>
+                        <span>฿${subtotal}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>ค่าส่ง:</span>
+                        <span>฿${shipping}</span>
+                    </div>
+                    <div class="flex justify-between font-bold text-lg border-t pt-2">
+                        <span>รวมทั้งหมด:</span>
+                        <span class="text-blue-600">฿${total}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Update quantity
+        function updateQuantity(productId, change) {
+            const item = cart.find(item => item.id === productId);
+            if (item) {
+                item.quantity += change;
+                if (item.quantity <= 0) {
+                    removeFromCart(productId);
+                } else {
+                    loadCartItems();
+                    updateCartButton();
+                }
+            }
+        }
+
+        // Remove from cart
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            loadCartItems();
+            updateCartButton();
+        }
+
+        // Clear cart
+        function clearCart() {
+            cart = [];
+            loadCartItems();
+            updateCartButton();
+        }
+
+        // Open checkout
+        function openCheckout() {
+            if (cart.length === 0) {
+                alert('ตะกร้าว่างเปล่า กรุณาเพิ่มสินค้าก่อน');
+                return;
+            }
+            
+            document.getElementById('cartModal').classList.remove('active');
+            
+            const orderSummaryDiv = document.getElementById('orderSummary');
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const shipping = 50;
+            const total = subtotal + shipping;
+            
+            orderSummaryDiv.innerHTML = `
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h4 class="font-semibold mb-3">สรุปคำสั่งซื้อ</h4>
+                    ${cart.map(item => `
+                        <div class="flex justify-between text-sm mb-1">
+                            <span>${item.name} (${item.size}) x${item.quantity}</span>
+                            <span>฿${item.price * item.quantity}</span>
+                        </div>
+                    `).join('')}
+                    <div class="border-t pt-2 mt-2">
+                        <div class="flex justify-between text-sm">
+                            <span>ค่าส่ง:</span>
+                            <span>฿${shipping}</span>
+                        </div>
+                        <div class="flex justify-between font-bold">
+                            <span>รวมทั้งหมด:</span>
+                            <span class="text-blue-600">฿${total}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('orderModal').classList.add('active');
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('orderModal').classList.remove('active');
+            document.getElementById('orderForm').reset();
+        }
+
+        // Close cart modal
+        function closeCartModal() {
+            document.getElementById('cartModal').classList.remove('active');
+        }
+
+        // Discord webhook configuration
+        const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1393594221436342363/ZvIsQbd9MWovSNzSwcmUDtAy7G-cQD2U_ZQ5A1ymiXNqbBgcDl40YxOimegP19zC21bI'; // ใส่ Webhook URL ของคุณที่นี่
+
+        // Send to Discord
+        async function sendToDiscord(orderData, paymentSlipBase64) {
+            const itemsList = orderData.items.map(item => 
+                `• ${item.name} (${item.size}) x${item.quantity} = ฿${item.price * item.quantity}`
+            ).join('\n');
+            
+            const embed = {
+                title: "🛒 คำสั่งซื้อใหม่!",
+                color: 0x00ff00,
+                fields: [
+                    { name: "รายการสินค้า", value: itemsList, inline: false },
+                    { name: "ราคาสินค้า", value: `฿${orderData.subtotal}`, inline: true },
+                    { name: "ค่าส่ง", value: `฿${orderData.shipping}`, inline: true },
+                    { name: "รวมทั้งหมด", value: `฿${orderData.total}`, inline: true },
+                    { name: "ชื่อ-นามสกุล", value: orderData.fullName, inline: false },
+                    { name: "เบอร์โทร", value: orderData.phone, inline: true },
+                    { name: "ที่อยู่", value: orderData.address, inline: false }
+                ],
+                timestamp: new Date().toISOString(),
+                footer: { text: "Fashion Store - พรีออเดอร์" }
+            };
+
+            const payload = {
+                embeds: [embed]
+            };
+
+            try {
+                // Send order info
+                await fetch(DISCORD_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                // Send payment slip if available
+                if (paymentSlipBase64) {
+                    const slipPayload = {
+                        content: "💳 **สลิปการโอนเงิน**",
+                        embeds: [{
+                            title: `สลิปของ ${orderData.fullName}`,
+                            image: { url: `data:image/jpeg;base64,${paymentSlipBase64}` },
+                            color: 0x0099ff
+                        }]
+                    };
+                    
+                    await fetch(DISCORD_WEBHOOK_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(slipPayload)
+                    });
+                }
+            } catch (error) {
+                console.error('Error sending to Discord:', error);
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('orderForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const shipping = 50;
+            const total = subtotal + shipping;
+            
+            const orderData = {
+                items: cart,
+                subtotal: subtotal,
+                shipping: shipping,
+                total: total,
+                fullName: document.getElementById('fullName').value,
+                address: document.getElementById('address').value,
+                phone: document.getElementById('phone').value
+            };
+            
+            const paymentSlipFile = document.getElementById('paymentSlip').files[0];
+            let paymentSlipBase64 = null;
+            
+            // Convert payment slip to base64
+            if (paymentSlipFile) {
+                paymentSlipBase64 = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const base64 = e.target.result.split(',')[1];
+                        resolve(base64);
+                    };
+                    reader.readAsDataURL(paymentSlipFile);
+                });
+            }
+            
+            // Send to Discord
+            if (DISCORD_WEBHOOK_URL !== 'https://discord.com/api/webhooks/1393594221436342363/ZvIsQbd9MWovSNzSwcmUDtAy7G-cQD2U_ZQ5A1ymiXNqbBgcDl40YxOimegP19zC21bI') {
+                await sendToDiscord(orderData, paymentSlipBase64);
+            }
+            
+            // Clear cart after successful order
+            cart = [];
+            updateCartButton();
+            
+            // Show success modal
+            closeModal();
+            document.getElementById('successModal').classList.add('active');
+        });
+
+        // Event listeners
+        document.getElementById('closeModal').addEventListener('click', closeModal);
+        document.getElementById('closeCartModal').addEventListener('click', closeCartModal);
+        document.getElementById('closeSuccess').addEventListener('click', function() {
+            document.getElementById('successModal').classList.remove('active');
+        });
+
+        document.getElementById('cartBtn').addEventListener('click', openCartModal);
+        document.getElementById('clearCart').addEventListener('click', clearCart);
+        document.getElementById('checkoutBtn').addEventListener('click', openCheckout);
+
+        // Close modal when clicking outside
+        document.getElementById('orderModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        document.getElementById('cartModal').addEventListener('click', function(e) {
+            if (e.target === this) closeCartModal();
+        });
+
+        document.getElementById('successModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.remove('active');
+            }
+        });
+
+        // Initialize
+        loadProducts();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'963bc128a3429bae',t:'MTc1MzI3OTc1NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
